@@ -10,22 +10,31 @@ Purpose: Employs python-myfitnesspal to export meal information into a CSV file.
 # myfitnesspal store-password username
 # Thanks for work @ https://github.com/coddingtonbear/python-myfitnesspal
 
-import myfitnesspal
-import datetime
+import myfitnesspal, datetime, csv, os
 
-# Look into http://www.tutorialspoint.com/python/python_date_time.htm for properly using date and time in Python
 
 # Will be reading from a username.login file, which is essentially a text file with the relevant info
 client = myfitnesspal.Client('seqian@outlook.com')
 
-firstDate = '2017-08-11'
+# Function to calculate date range. From somewhere on StackOverflow
+def daterange(start_date, end_date):
+    for n in range(int ((end_date - start_date).days)):
+        yield start_date + datetime.timedelta(n)
+
+# Setting Days
+first_day = datetime.date(2017, 8, 11)
 # Would come from csv file
-# lastBackup
-today = datetime.datetime.today()
+# Until then...
+latest_backup = first_day
+today = datetime.date.today()
 
-meals = client.get_date(2017, 8, 11)
-
-for i in range(day, 21myfmy):
-	meals = client.get_date(year, month, 2)
-    
-# Write to CSV file
+with open('dict.csv', 'w', newline='') as csv_file:
+    writer = csv.writer(csv_file)
+    for date in daterange(latest_backup, today):
+        day = client.get_date(date)
+        for meal_index in range(len(day.keys())):
+            meal_time = day.keys()[meal_index]
+            for ingredient in range(len(day.meals[meal_index].entries)):
+                row = [day, date.strftime('%A'), meal_index, meal_time]
+                row.append(day.meals[meal_index].entries[ingredient])
+                writer.writerow(row)
