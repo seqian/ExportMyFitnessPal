@@ -10,7 +10,7 @@ Purpose: Employs python-myfitnesspal to export meal information into a CSV file.
 # myfitnesspal store-password username
 # Thanks for work @ https://github.com/coddingtonbear/python-myfitnesspal
 
-import myfitnesspal, datetime, csv, os
+import myfitnesspal, datetime, csv, re
 
 
 # Will be reading from a username.login file, which is essentially a text file with the relevant info
@@ -34,7 +34,17 @@ with open('dict.csv', 'w', newline='') as csv_file:
         day = client.get_date(date)
         for meal_index in range(len(day.keys())):
             meal_time = day.keys()[meal_index]
-            for ingredient in range(len(day.meals[meal_index].entries)):
-                row = [day, date.strftime('%A'), meal_index, meal_time]
-                row.append(day.meals[meal_index].entries[ingredient])
+            for ingredient_index in range(len(day.meals[meal_index].entries)):
+                ingredient = day.meals[meal_index].entries[ingredient_index].get_as_dict()
+                row = [date, date.strftime('%A'), meal_index, meal_time, \
+                       ingredient['name'], \
+                       str(ingredient['nutrition_information'])]
                 writer.writerow(row)
+
+try:
+    found = re.search('{.*}', client.get_date(today).meals[2].entries[0].get_as_dict()).group(1)
+except AttributeError:
+    # AAA, ZZZ not found in the original string
+    found = '' # apply your error handling
+
+# found: 1234
