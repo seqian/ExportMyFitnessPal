@@ -10,11 +10,13 @@ Purpose: Employs python-myfitnesspal to export meal information into a CSV file.
 # myfitnesspal store-password username
 # Thanks for work @ https://github.com/coddingtonbear/python-myfitnesspal
 
-import myfitnesspal, datetime, csv, re
+import myfitnesspal, datetime, csv, re, sqlite3
+from xlrd import open_workbook
 
 
 # Will be reading from a username.login file, which is essentially a text file with the relevant info
 client = myfitnesspal.Client('seqian@outlook.com')
+# conn = sqlite3.connect('food_diary.db')
 
 # Function to calculate date range. From somewhere on StackOverflow
 def daterange(start_date, end_date):
@@ -22,10 +24,8 @@ def daterange(start_date, end_date):
         yield start_date + datetime.timedelta(n)
 
 # Setting Days
-first_day = datetime.date(2017, 8, 11)
-# Would come from csv file
-# Until then...
-latest_backup = first_day
+# TODO: Figure out last date automatically through ExcelRead
+latest_backup = datetime.date(2017, 9, 4)
 today = datetime.date.today()
 
 with open('dict.csv', 'w', newline='') as csv_file:
@@ -40,11 +40,3 @@ with open('dict.csv', 'w', newline='') as csv_file:
                        ingredient['name'], \
                        str(ingredient['nutrition_information'])]
                 writer.writerow(row)
-
-try:
-    found = re.search('{.*}', client.get_date(today).meals[2].entries[0].get_as_dict()).group(1)
-except AttributeError:
-    # AAA, ZZZ not found in the original string
-    found = '' # apply your error handling
-
-# found: 1234
